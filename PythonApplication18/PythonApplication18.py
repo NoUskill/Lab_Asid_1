@@ -5,9 +5,48 @@ import math
 import numpy as np 
 import matplotlib.pyplot as plt
 from math import radians
+import sys
 
-#Доп Функции 
-def GenerationGaps(A): #2^k-1
+
+
+
+
+sys.setrecursionlimit(10000)
+
+
+def Heapify(A,n, i):
+    left=2*i+1
+    right=2*i+2
+    max_num=i
+    if(left<n and A[max_num]<A[left]):
+        max_num= left
+    if(right<n and A[max_num]<A[right]):
+        max_num= right
+    if(max_num != i):
+        A[max_num],A[i]=A[i],A[max_num]
+        Heapify(A,n,max_num)
+
+
+
+def HeapSort(A_copy):
+    A=A_copy
+    n=len(A)
+    for i in range(n//2-1,-1,-1):
+        Heapify(A,n,i)
+
+    for j in range(n-1, 0, -1):
+        A[j], A[0] = A[0], A[j] 
+        Heapify(A, j, 0)
+    return A
+      
+def HeapSort_witch_time(A_copy):
+    start_time =time()
+    B=HeapSort(A)
+    end_time=time()- start_time
+    print("HeapSort time: ",round(end_time,2),"N=",len(A),end='\n')
+    return B
+
+def GenerationGapsHibbard(A): 
     N=len(A)
     all_gaps=[]
     i=1
@@ -16,14 +55,39 @@ def GenerationGaps(A): #2^k-1
        i=i+1
     all_gaps.reverse()
     return all_gaps
-#Сортировки без рекурсии 
-def ChoisSort(A_copy):
+def GenerationGapsShella(A):
+    N=len(A)
+    all_gaps=[]
+    i=1
+    while(math.ceil(N/(2**i)) > 1):
+       all_gaps.append(math.ceil(N/(2**i)))
+       i=i+1
+    all_gaps.append(1)
+    return all_gaps
+def GenerationGapsPratta(A):
+    N=len(A)
+    all_gaps=[]
+    for i in range(0,math.ceil(math.log(N,3))):
+        for j in range(0,math.ceil(math.log(N,2))):
+            if((3**i)*(2**j)>N/2):
+                break
+            else:
+                all_gaps.append((3**i)*(2**j))
+
+    all_gaps.sort(reverse=True)
+
+    return all_gaps
+
+
+def SelectionSort(A_copy):
     A=A_copy
     start_time =time()
     for i in range(0,len(A)):
         for j in range(i,len(A)):
             if A[i]>A[j]:
                 A[j],A[i]=A[i],A[j]
+
+
     end_time=time()- start_time
     print("ChoisSort time: ",end_time,end='\n')
     return A
@@ -33,17 +97,14 @@ def InsertionSort(A_copy):
     for i in range(1,len(A)):
         j=i
         while((j != 0)and(A[j-1]>A[j])):
-
             A[j-1],A[j]=A[j],A[j-1]
             j=j-1
-
     end_time=time()- start_time
     print("InsertionSort time: ",end_time,end='\n')
     return A
-def ShellSort(A_copy):
+def ShellSort(A_copy,all_gaps):
     A=A_copy
     start_time =time()
-    all_gaps=GenerationGaps(A)
     for gap in all_gaps:
         for i in range(gap,len(A)):
             j=i
@@ -53,7 +114,21 @@ def ShellSort(A_copy):
     end_time=time()- start_time
     print("ShellSort time: ",round(end_time,2),"N=",len(A),end='\n')
     return A
-#Сортировки с рекурсией
+def BubbleSort(A_copy):
+    A=A_copy
+    start_time =time()
+    flag=True 
+    while(flag!=False):
+        flag=False
+        j=0
+        for i in range(1,len(A)-j):
+            if A[i-1]>A[i]:
+                A[i-1],A[i]=A[i],A[i-1]
+                flag=True
+        j=j+1
+    end_time=time()- start_time
+    print("BubbleSort time: ",round(end_time,2),"N=",len(A),end='\n')
+    return A
 def MergeSort(A):
     temp_arr=[]
     arr_len=len(A) 
@@ -100,14 +175,10 @@ def QickSort(A_copy):
         temp_arr.append(min(A[0],A[1]))
         temp_arr.append(max(A[0],A[1]))
         return temp_arr
-    #elif(arr_len==3):
-    #    temp_arr.append(min(A[0],A[1],A[2]))
-    #    temp_arr.append(sum(int(A[0]),int(A[1]),int(A[2]))-max(A[0],A[1],A[2])-min(A[0],A[1],A[2]))
-    #    print(A[0],A[1],A[2])
-    #    temp_arr.append(max(A[0],A[1],A[2]))
-    #    return temp_arr
+
     else:
-        mid_num=A[0]
+        mid_num=A[math.ceil(len(A)/2)]
+
         left_num=[]
         right_num=[] 
         for i in range(1,len(A)):
@@ -128,47 +199,29 @@ def QickSort_with_time(A):
     print("QickSort time: ",round(end_time,2),"N=",len(A),end='\n')
     return B
 
+def SortedArr(kol):
+    A=[i for i in range(1,kol+1)]
+    return A
 
-#def main():
-#    x = np.arange(0, radians(1800), radians(12))
-#    plt.plot(x, np.cos(x), 'b')
-#    plt.show()
-
-
-
-
-#seed(25)
-
-
-#A=[]
-
-#for i in range(1000, 100000, 1000):
-#    A.clear()
-#    n=i
-#    A=[randint(0,n//2) for _ in range(n)]
-#    B=A.copy()
-#    C=A.copy()
-#    print("N:",n)
-#    A=ShellSort(A)
-#    B=MergeSort_with_time(B)
-#    C=QickSort_with_time(C)
+def AlmostSortedArr(kol,_seed):
+    A=[i for i in range(1,kol-math.ceil((kol*0.1))+1)]
+    seed(_seed)
+    for j in range(0,math.ceil(kol*0.1)):
+        A.append(randint(0,kol//2))
+    return A
 
 
-#n=1000000
-#A=[randint(1,n//2) for _ in range(n)]
-#B=A.copy()
-#C=A.copy()
-#D=A.copy()
-#E=A.copy()
-#F=A.copy()
-#test=A.copy()
+def ReversedArr(kol):
+    A=[i for i in range(kol,0,-1)]
+    return A
+def RandomArr(kol,_seed):
+    seed(_seed)
+    A=[randint(0,kol//2) for _ in range(kol)]
+    return A
 
-#B=ChoisSort(B)
-#C=InsertionSort(C)
-#D=BubbleSort(D)
-#E=ShellSort(E)
-#F=MergeSort_with_time(F)
-#A=QickSort_with_time(A)
-#test.sort()
-#print(A==test==E==F)
-#print(B==C==D==E==F==test==A)
+
+
+
+A=RandomArr(100000,25)
+A=QickSort_with_time(A)
+print(A)
